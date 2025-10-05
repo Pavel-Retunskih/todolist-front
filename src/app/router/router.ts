@@ -1,7 +1,20 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import AuthView from '@/view/auth/ui/AuthView.vue'
+import DashboardView from '@/view/dashboard/ui/dashboard-view.vue'
+import MainLayout from '@/view/main-layout/ui/main-layout.vue'
 
-const routes: readonly RouteRecordRaw[] = [{ path: '/auth/', component: AuthView }]
+import SigninView from '@/view/signin/ui/signin-view.vue'
+import SignupView from '@/view/signup/ui/signup-view.vue'
+
+const routes: readonly RouteRecordRaw[] = [
+  { path: '/', redirect: '/signin' },
+  { path: '/signup', component: SignupView },
+  { path: '/signin', component: SigninView },
+  {
+    path: '/',
+    component: MainLayout,
+    children: [{ path: '/dashboard', name: 'Dashboard', component: DashboardView }],
+  },
+]
 
 export const router = createRouter({
   history: createWebHistory(),

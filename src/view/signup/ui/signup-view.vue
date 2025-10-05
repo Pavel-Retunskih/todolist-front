@@ -4,91 +4,29 @@ import InputUi from '@/shared/input/input-ui.vue'
 import EmailIcon from '@/assets/icons/email-icon.vue'
 import PasswordIcon from '@/assets/icons/password-icon.vue'
 import PasswordConfirmIcon from '@/assets/icons/password-confirm-icon.vue'
-import { computed, ref } from 'vue'
+import CheckboxUi from '@/shared/checkbox/checkbox-ui.vue'
+import { useSignUp } from '@/view/signup/model/useSignUp.ts'
+import { useSignUpForm } from '@/view/signup/model/useSignUpForm.ts'
 
-const email = ref<string>('')
-const password = ref<string>('')
-const passwordConfirm = ref<string>('')
-const isTermsChecked = ref(false)
-const errorMessage = ref({ email: '', password: '', passwordConfirm: '', terms: '' })
-const isSubmitting = ref(false)
-
-const validateForm = () => {
-  errorMessage.value = { email: '', password: '', passwordConfirm: '', terms: '' }
-  if (!validateEmail(email.value)) {
-    errorMessage.value.email = 'Please enter a valid email address'
-    return
-  }
-
-  if (!validatePassword(password.value)) {
-    errorMessage.value.password =
-      'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-    return
-  }
-
-  if (!validatePasswordConfirm(password.value, passwordConfirm.value)) {
-    errorMessage.value.passwordConfirm = 'Passwords do not match'
-    return
-  }
-
-  if (!isTermsChecked.value) {
-    errorMessage.value.terms = 'Please agree to the terms and conditions'
-    return
-  }
-}
-const handleSubmit = async () => {
-  validateForm()
-
-  if (formIsValid.value) {
+const { signup } = useSignUp()
+const {
+  isSubmitting,
+  handleSubmit,
+  errorMessage,
+  email,
+  password,
+  passwordConfirm,
+  isTermsChecked,
+} = useSignUpForm()
+const onSubmitForm = () => {
+  handleSubmit(async ({ email, password }) => {
     try {
-      console.log('Submitting form...')
-      isSubmitting.value = true
-      const response = await fetch(`${import.meta.env.BASE_URL}`, {
-        body: JSON.stringify({
-          email: email.value,
-          password: password.value,
-        }),
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      })
-      if (response.ok) {
-        console.log('Registration successful')
-      }
-      const data = await response.json()
-      console.log(data)
+      await signup({ email, password })
     } catch (error) {
       console.error(error)
-    } finally {
-      isSubmitting.value = false
     }
-  }
+  })
 }
-
-const validateEmail = (email: string) => {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return regex.test(email)
-}
-
-const validatePassword = (password: string) => {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-  return regex.test(password)
-}
-
-const validatePasswordConfirm = (password: string, passwordConfirm: string) => {
-  return password === passwordConfirm
-}
-
-const formIsValid = computed(() => {
-  return (
-    validateEmail(email.value) &&
-    validatePassword(password.value) &&
-    validatePasswordConfirm(password.value, passwordConfirm.value) &&
-    isTermsChecked.value
-  )
-})
 </script>
 
 <template>
@@ -130,17 +68,17 @@ const formIsValid = computed(() => {
               <PasswordConfirmIcon />
             </template>
           </input-ui>
-          <div class="terms">
-            <input id="terms" v-model="isTermsChecked" type="checkbox" />
-            <label for="terms">I agree to all terms</label>
-          </div>
 
-          <button class="submit-button" :disabled="isSubmitting" @click="handleSubmit">
+          <checkbox-ui v-model="isTermsChecked" type="checkbox">
+            <template #label>I agree to all terms</template>
+          </checkbox-ui>
+
+          <button class="submit-button" :disabled="isSubmitting" @click="onSubmitForm">
             Register
           </button>
           <p>
             Already have an account?
-            <router-link to="auth/sign-in">Sign In</router-link>
+            <router-link to="signin">Sign In</router-link>
           </p>
         </div>
       </div>
