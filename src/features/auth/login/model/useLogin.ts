@@ -5,30 +5,41 @@ import { useRouter } from 'vue-router'
 
 const formSchema = toTypedSchema(
   z.object({
-    email: z
-      .string()
-      .min(5, 'Bug title must be at least 5 characters.')
-      .max(32, 'Bug title must be at most 32 characters.'),
+    email: z.email(),
     password: z
       .string()
-      .min(20, 'Description must be at least 20 characters.')
-      .max(100, 'Description must be at most 100 characters.'),
+      .min(8, { message: 'min 8' })
+      .max(20, { message: 'max 20' })
+      .refine((password) => /[A-Z]/.test(password), {
+        message: 'Must include uppercase letter',
+      })
+      .refine((password) => /[a-z]/.test(password), {
+        message: 'Must include lowercase letter',
+      })
+      .refine((password) => /[0-9]/.test(password), {
+        message: 'Must include number',
+      })
+      .refine((password) => /[!@#$%^&*]/.test(password), {
+        message: 'Must include special character',
+      }),
+    isRememberMe: z.boolean(),
   }),
 )
 
 export function useLogin() {
-  const { handleSubmit } = useForm({
+  const { handleSubmit, setFieldError, isSubmitting } = useForm({
     validationSchema: formSchema,
     initialValues: {
       email: '',
       password: '',
+      isRememberMe: false,
     },
   })
   const router = useRouter()
 
-  const onSubmit = handleSubmit(async ({ email, password }) => {
+  const onSubmit = handleSubmit(async ({ email, password, isRememberMe }) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/auth/login`, {
+      const response = await fetch(`http://localhost:4000/api/v1/auth/login`, {
         body: JSON.stringify({
           email: email,
           password: password,
@@ -41,7 +52,8 @@ export function useLogin() {
         },
       })
       if (!response.ok) {
-        console.log('Login failed. Please try again. 400 Bad Request')
+        const data = await response.json()
+        throw new Error(data.message)
       }
       const data = await response.json()
       console.log('Login data:', data)
@@ -50,12 +62,16 @@ export function useLogin() {
         console.log('Registration successful. Access token:', data.accessToken)
         localStorage.setItem('accessToken', data.accessToken)
       }
-      console.log(data)
     } catch (error) {
-      console.error(error)
+      if (error instanceof Error) {
+        setFieldError('email', error.message)
+        setFieldError('password', error.message)
+        console.error('Error', error)
+      }
     }
   })
   return {
     onSubmit,
+    isSubmitting,
   }
 }

@@ -11,6 +11,11 @@ import {
 } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { Field, FieldError, FieldGroup, FieldSet } from '@/shared/ui/field'
+import { Field as VeeField } from 'vee-validate'
+import { useSignUp } from '@/features/auth/register/model/useSignUp.ts'
+
+const { onSubmit, isSubmitting } = useSignUp()
 </script>
 
 <template>
@@ -27,29 +32,65 @@ import { Label } from '@/shared/ui/label'
       </CardAction>
     </CardHeader>
     <CardContent>
-      <form>
-        <div class="grid w-full items-center gap-4">
-          <div class="flex flex-col space-y-1.5">
-            <Label for="email">Email</Label>
-            <Input id="email" type="email" placeholder="m@example.com" />
-          </div>
-          <div class="flex flex-col space-y-1.5">
-            <div class="flex items-center">
-              <Label for="password">Password</Label>
-            </div>
-            <Input id="password" type="password" />
-          </div>
-          <div class="flex flex-col space-y-1.5">
-            <div class="flex items-center">
-              <Label for="password">Confirm Password</Label>
-            </div>
-            <Input id="password" type="password" />
-          </div>
-        </div>
+      <form id="signup-form" @submit="onSubmit">
+        <FieldSet>
+          <FieldGroup class="grid w-full items-center gap-4">
+            <VeeField v-slot="{ errors, field }" :validate-on-model-update="false" name="email">
+              <Field :data-invalid="!!errors.length" class="flex flex-col space-y-1.5">
+                <FieldLabel for="email">Email</FieldLabel>
+                <Input
+                  v-bind="field"
+                  id="email"
+                  :aria-invalid="!!errors.length"
+                  type="email"
+                  placeholder="m@example.com"
+                />
+                <FieldError v-if="errors.length" :errors="errors" />
+              </Field>
+            </VeeField>
+            <VeeField v-slot="{ errors, field }" :validate-on-model-update="false" name="password">
+              <Field :data-invalid="!!errors.length" class="flex flex-col space-y-1.5">
+                <FieldLabel for="password">Password</FieldLabel>
+
+                <Input
+                  v-bind="field"
+                  id="password"
+                  :aria-invalid="!!errors.length"
+                  type="password"
+                />
+                <FieldError v-if="errors.length" :errors="errors" />
+              </Field>
+            </VeeField>
+            <VeeField
+              v-slot="{ errors, field }"
+              :validate-on-model-update="false"
+              name="confirmPassword"
+            >
+              <Field :data-invalid="!!errors.length" class="flex flex-col space-y-1.5">
+                <Label for="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  v-bind="field"
+                  :aria-invalid="!!errors.length"
+                />
+                <FieldError v-if="errors.length" :errors="errors" />
+              </Field>
+            </VeeField>
+          </FieldGroup>
+        </FieldSet>
       </form>
     </CardContent>
     <CardFooter class="flex flex-col gap-2">
-      <Button variant="outline" class="w-full border-none cursor-pointer"> Register</Button>
+      <Button
+        variant="outline"
+        class="w-full border-none cursor-pointer"
+        type="submit"
+        form="signup-form"
+        :disabled="isSubmitting"
+      >
+        Register</Button
+      >
     </CardFooter>
   </Card>
 </template>
