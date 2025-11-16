@@ -17,7 +17,7 @@ const formSchema = toTypedSchema(
 )
 
 export function useLogin() {
-  const { handleSubmit } = useForm({
+  const { handleSubmit, setErrors } = useForm({
     validationSchema: formSchema,
     initialValues: {
       email: '',
@@ -52,7 +52,7 @@ export function useLogin() {
       }
       console.log(data)
     } catch (error) {
-      console.error(error)
+      setErrors({ email: error.message })
     }
   })
   return {
