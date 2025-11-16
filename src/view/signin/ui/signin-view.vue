@@ -3,8 +3,7 @@ import LoginForm from '@/features/auth/login/ui/login-form.vue'
 </script>
 
 <template>
-  <div class="flex justify-center items-center flex-col">
-    <h1>Sign In</h1>
+  <div class="grow flex justify-center items-center flex-col">
     <LoginForm />
   </div>
 </template>

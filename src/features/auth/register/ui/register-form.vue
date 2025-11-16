@@ -11,25 +11,23 @@ import {
 } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { useLogin } from '@/features/auth/login/model/useLogin.ts'
-import { Separator } from '@/shared/ui/separator'
-
-const { onSubmit } = useLogin()
 </script>
 
 <template>
   <Card class="w-full max-w-sm">
     <CardHeader>
-      <CardTitle>Login to your account</CardTitle>
-      <CardDescription> Enter your email below to login to your account</CardDescription>
+      <CardTitle>Register new account</CardTitle>
+      <CardDescription>
+        Enter your email and password below to register new account
+      </CardDescription>
       <CardAction>
         <Button variant="link" as-child>
-          <router-link to="signup">Sign Up</router-link>
+          <router-link to="signin">Sign In</router-link>
         </Button>
       </CardAction>
     </CardHeader>
     <CardContent>
-      <form @submit="onSubmit">
+      <form>
         <div class="grid w-full items-center gap-4">
           <div class="flex flex-col space-y-1.5">
             <Label for="email">Email</Label>
@@ -38,7 +36,12 @@ const { onSubmit } = useLogin()
           <div class="flex flex-col space-y-1.5">
             <div class="flex items-center">
               <Label for="password">Password</Label>
-              <a href="#" class="ml-auto inline-block text-sm underline"> Forgot your password? </a>
+            </div>
+            <Input id="password" type="password" />
+          </div>
+          <div class="flex flex-col space-y-1.5">
+            <div class="flex items-center">
+              <Label for="password">Confirm Password</Label>
             </div>
             <Input id="password" type="password" />
           </div>
@@ -46,11 +49,7 @@ const { onSubmit } = useLogin()
       </form>
     </CardContent>
     <CardFooter class="flex flex-col gap-2">
-      <Separator class="mb-12" />
-      <Button variant="outline" class="w-full border-none cursor-pointer"> Login</Button>
-      <Button variant="outline" class="w-full border-none cursor-pointer">
-        Login with Google
-      </Button>
+      <Button variant="outline" class="w-full border-none cursor-pointer"> Register</Button>
     </CardFooter>
   </Card>
 </template>
