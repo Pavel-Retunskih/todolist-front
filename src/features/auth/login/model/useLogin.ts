@@ -2,29 +2,21 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { useRouter } from 'vue-router'
+import { apiClient } from '@/lib/apiClient'
+import { applyFieldError } from '@/shared/helpers/applyFieldError.ts'
+import { passwordSchema } from '@/shared/validation/passwordSchema'
+import { useAuthStore } from '@/features/auth/model/auth.store'
 
-const formSchema = toTypedSchema(
-  z.object({
-    email: z.email(),
-    password: z
-      .string()
-      .min(8, { message: 'min 8' })
-      .max(20, { message: 'max 20' })
-      .refine((password) => /[A-Z]/.test(password), {
-        message: 'Must include uppercase letter',
-      })
-      .refine((password) => /[a-z]/.test(password), {
-        message: 'Must include lowercase letter',
-      })
-      .refine((password) => /[0-9]/.test(password), {
-        message: 'Must include number',
-      })
-      .refine((password) => /[!@#$%^&*]/.test(password), {
-        message: 'Must include special character',
-      }),
-    isRememberMe: z.boolean(),
-  }),
-)
+const loginSchema = z.object({
+  email: z.email(),
+  password: passwordSchema,
+  isRememberMe: z.boolean(),
+})
+
+const formSchema = toTypedSchema(loginSchema)
+
+type LoginValues = z.infer<typeof loginSchema>
+type LoginField = keyof LoginValues
 
 export function useLogin() {
   const { handleSubmit, setFieldError, isSubmitting } = useForm({
@@ -36,38 +28,24 @@ export function useLogin() {
     },
   })
   const router = useRouter()
+  const authStore = useAuthStore()
 
   const onSubmit = handleSubmit(async ({ email, password, isRememberMe }) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/v1/auth/login`, {
-        body: JSON.stringify({
-          email: email,
-          password: password,
-          rememberMe: isRememberMe,
-        }),
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+      const { data } = await apiClient.post('/auth/login', {
+        email,
+        password,
+        rememberMe: isRememberMe,
       })
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.message)
-      }
-      const data = await response.json()
-      console.log('Login data:', data)
       if (data.accessToken) {
+        authStore.setToken(data.accessToken)
         await router.push({ path: '/dashboard' })
-        console.log('Registration successful. Access token:', data.accessToken)
-        localStorage.setItem('accessToken', data.accessToken)
       }
     } catch (error) {
-      if (error instanceof Error) {
-        setFieldError('email', error.message)
-        setFieldError('password', error.message)
-        console.error('Error', error)
-      }
+      applyFieldError<LoginField>(error, setFieldError, {
+        fallbackFields: ['email', 'password'],
+      })
+      console.error('Error', error)
     }
   })
   return {
