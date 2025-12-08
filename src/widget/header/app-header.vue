@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import InputUi from '@/shared/input/input-ui.vue'
 import { ref } from 'vue'
+import { Input } from '@/shared/ui/input'
 
 const search = ref('')
 </script>
 
 <template>
-  <header>
-    <span>Dashboard</span>
+  <header
+    class="flex items-center justify-between w-full h-[100px] px-[75px] py-[38px] bg-card border-b border-border shadow-sm"
+  >
+    <span class="font-semibold">Dashboard</span>
     <div class="search">
-      <input-ui v-model="search" placeholder="Search your task here..." class="searchInput" />
+      <Input v-model="search" placeholder="Search your task here..." class="searchInput" />
     </div>
 
     <div>
@@ -32,16 +35,5 @@ const search = ref('')
 
 :deep(.searchInput) {
   padding: 10px;
-}
-
-header {
-  align-items: center;
-  padding: 38px 75px 28px;
-  display: flex;
-  background: #f8f8f8;
-  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.07);
-  width: 100%;
-  height: 100px;
-  justify-content: space-between;
 }
 </style>
