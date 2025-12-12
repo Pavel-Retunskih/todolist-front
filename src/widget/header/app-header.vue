@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import InputUi from '@/shared/input/input-ui.vue'
 import { ref } from 'vue'
 import { Input } from '@/shared/ui/input'
 

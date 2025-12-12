@@ -3,16 +3,7 @@ import { computed } from 'vue'
 import HandIcon from '@/assets/icons/hand-icon.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
-
-interface TodolistEntity {
-  id: string
-  ownerId: string
-  title: string
-  imageUrl: string | null
-  description: string | null
-  createdAt: Date
-  updatedAt: Date
-}
+import { useTodolistQuery } from '@/entities/todolist/model/useTodolistQuery.ts'
 
 interface TaskEntity {
   id: string
@@ -27,36 +18,6 @@ interface TaskEntity {
   description?: string
   imageUrl?: string
 }
-
-const todolists: TodolistEntity[] = [
-  {
-    id: '1',
-    ownerId: 'user-1',
-    title: 'Personal',
-    imageUrl: null,
-    description: 'Tasks to keep your personal life organized',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    ownerId: 'user-1',
-    title: 'Work',
-    imageUrl: null,
-    description: 'Focus on what moves your projects forward',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    ownerId: 'user-1',
-    title: 'Learning',
-    imageUrl: null,
-    description: 'Things to read, watch and practice',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-]
 
 const tasks: TaskEntity[] = [
   {
@@ -126,8 +87,11 @@ const tasks: TaskEntity[] = [
     tags: ['learning'],
   },
 ]
+const { todolistsQuery } = useTodolistQuery()
 
-const totalTodolists = computed(() => todolists.length)
+const { data: todolists, isLoading, error } = todolistsQuery
+
+const totalTodolists = computed(() => todolists.value?.length)
 
 const totalTasks = computed(() => tasks.length)
 
@@ -138,16 +102,6 @@ const completionRate = computed(() => {
 
   return Math.round((completedTasks.value / totalTasks.value) * 100)
 })
-
-const tasksByTodolistId = computed(() =>
-  todolists.reduce(
-    (acc, list) => {
-      acc[list.id] = tasks.filter((task) => task.todolistId === list.id)
-      return acc
-    },
-    {} as Record<string, TaskEntity[]>,
-  ),
-)
 
 const recentTasks = computed(() =>
   [...tasks].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, 5),
@@ -202,13 +156,12 @@ const recentTasks = computed(() =>
 
       <div class="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
         <div class="space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-sm font-medium">Your lists</h2>
-            <Button variant="outline" size="sm">View all</Button>
-          </div>
-
-          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <Card v-for="list in todolists" :key="list.id" class="h-full shadow-md hover:shadow-lg transition-shadow">
+          <div v-if="totalTodolists > 0" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <Card
+              v-for="list in todolists"
+              :key="list.id"
+              class="h-full shadow-md hover:shadow-lg transition-shadow"
+            >
               <CardHeader class="pb-3">
                 <CardTitle class="truncate text-base font-semibold">
                   {{ list.title }}
@@ -243,6 +196,10 @@ const recentTasks = computed(() =>
               </CardContent>
             </Card>
           </div>
+          <div v-else class="flex flex-col items-center justify-center gap-4">
+            <p>No todolists yet. Start by creating your first one.</p>
+            <Button variant="outline">New todolist</Button>
+          </div>
         </div>
 
         <div class="w-full space-y-4 md:max-w-xs md:ml-auto">
@@ -264,12 +221,6 @@ const recentTasks = computed(() =>
                   <div class="mr-3 flex-1">
                     <p class="truncate font-medium">
                       {{ task.title }}
-                    </p>
-                    <p class="text-xs text-muted-foreground">
-                      List:
-                      {{
-                        todolists.find((list) => list.id === task.todolistId)?.title ?? 'Unknown'
-                      }}
                     </p>
                   </div>
                   <span
