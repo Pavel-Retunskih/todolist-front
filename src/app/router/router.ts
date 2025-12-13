@@ -9,6 +9,7 @@ import VitalView from '@/view/vital-view/vital-view.vue'
 import TasksView from '@/view/tasks-view/tasks-view.vue'
 import TasksCategoryView from '@/view/tasks-category-view/tasks-category-view.vue'
 import SettingsView from '@/view/settings-view/settings-view.vue'
+import TodolistView from '@/view/todolist-view/ui/todolist-view.vue'
 
 const ROUTES = {
   DASHBOARD: '/dashboard',
@@ -16,6 +17,7 @@ const ROUTES = {
   TASKS: '/tasks',
   TASKS_CATEGORY: '/tasks-category',
   SETTINGS: '/settings',
+  TODOLIST: '/todolists/:id',
   SIGNIN: '/signin',
   SIGNUP: '/signup',
 }
@@ -56,6 +58,12 @@ const routes: readonly RouteRecordRaw[] = [
         path: ROUTES.SETTINGS,
         name: 'Settings',
         component: SettingsView,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: ROUTES.TODOLIST,
+        name: 'Todolist',
+        component: TodolistView,
         meta: { requiresAuth: true },
       },
     ],

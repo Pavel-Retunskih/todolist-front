@@ -6,6 +6,10 @@ export const todolistsApi = {
     const { data } = await apiClient.get('todolists/get-all')
     return data
   },
+  getTodolistById: async (id: string): Promise<TodoList> => {
+    const { data } = await apiClient.get(`todolists/get-todolist/${id}`)
+    return data
+  },
   createTodolist: async (payload: {
     title: string
     description?: string

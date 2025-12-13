@@ -52,8 +52,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
         <NativeSelect
           class="text-xs h-8 pr-6 pl-2 text-transparent relative"
           @change="(e: Event) => {
+            const target = e.target as HTMLSelectElement | null
             placeholder = placeholder.set({
-              month: Number((e?.target as any)?.value),
+              month: Number(target?.value),
             })
           }"
         >
@@ -74,8 +75,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
         <NativeSelect
           class="text-xs h-8 pr-6 pl-2 text-transparent relative"
           @change="(e: Event) => {
+            const target = e.target as HTMLSelectElement | null
             placeholder = placeholder.set({
-              year: Number((e?.target as any)?.value),
+              year: Number(target?.value),
             })
           }"
         >

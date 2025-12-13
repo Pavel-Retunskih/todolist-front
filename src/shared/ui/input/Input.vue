@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, useAttrs, type HTMLAttributes } from 'vue'
 import { Eye, EyeOff } from 'lucide-vue-next'
-import { useVModel } from '@vueuse/core'
 import { cn } from '@/lib/utils'
 
 defineOptions({
+  name: 'UiInput',
   inheritAttrs: false,
 })
 
@@ -21,9 +21,48 @@ const emits = defineEmits<{
 
 const attrs = useAttrs()
 
-const modelValue = useVModel(props, 'modelValue', emits, {
-  passive: true,
-  defaultValue: props.defaultValue,
+const uncontrolledValue = ref<string | number>(props.defaultValue ?? '')
+
+const inputAttrs = computed(() => {
+  type EventHandler = (event: Event) => void
+
+  const a: Record<string, unknown> = { ...(attrs as Record<string, unknown>) }
+
+  const hasModelValue = props.modelValue !== undefined
+  const hasAttrValue = a.value !== undefined
+  const isControlled = hasModelValue || hasAttrValue
+
+  a.value = hasModelValue
+    ? props.modelValue
+    : hasAttrValue
+      ? a.value
+      : uncontrolledValue.value
+
+  const originalOnInput: unknown = a.onInput
+  a.onInput = (event: Event) => {
+    if (typeof originalOnInput === 'function') {
+      ;(originalOnInput as EventHandler)(event)
+    } else if (Array.isArray(originalOnInput)) {
+      for (const fn of originalOnInput) {
+        if (typeof fn === 'function') {
+          ;(fn as EventHandler)(event)
+        }
+      }
+    }
+
+    const target = event.target as HTMLInputElement
+    const next = target.value
+
+    if (!isControlled) {
+      uncontrolledValue.value = next
+    }
+
+    if (hasModelValue) {
+      emits('update:modelValue', next)
+    }
+  }
+
+  return a
 })
 
 const isPasswordType = computed(() => props.type === 'password')
@@ -41,8 +80,7 @@ const inputType = computed(() => {
 <template>
   <div class="relative w-full">
     <input
-      v-bind="attrs"
-      v-model="modelValue"
+      v-bind="inputAttrs"
       :type="inputType"
       data-slot="input"
       :class="
