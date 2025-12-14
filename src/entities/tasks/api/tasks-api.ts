@@ -7,8 +7,13 @@ import type {
 } from '@/shared/types/task/task.ts'
 
 export const tasksApi = {
-  getTasksByTodolistId: async (todolistId: string): Promise<Task[]> => {
-    const { data } = await apiClient.get<Task[]>(`tasks/${todolistId}`)
+  getTasksByTodolistId: async (
+    todolistId: string,
+    filters?: { minPriority?: number; dueInDays?: number },
+  ): Promise<Task[]> => {
+    const { data } = await apiClient.get<Task[]>(`tasks/${todolistId}`, {
+      params: filters,
+    })
     return data
   },
   createTask: async (payload: CreateTaskPayload): Promise<Task> => {
