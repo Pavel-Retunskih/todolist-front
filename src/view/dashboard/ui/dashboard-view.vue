@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, unref } from 'vue'
+import { computed, type ComputedRef, ref, unref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQueries } from '@tanstack/vue-query'
 import { Field as VeeField, useForm } from 'vee-validate'
@@ -14,16 +14,10 @@ import { tasksApi } from '@/entities/tasks/api/tasks-api'
 import type { Task } from '@/shared/types/task/task'
 import TodolistCard from '@/entities/todolist/ui/todolist-card.vue'
 import { Input } from '@/shared/ui/input'
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from '@/shared/ui/field'
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/shared/ui/field'
 import { applyFieldError } from '@/shared/helpers/applyFieldError'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
+import type { TodoList } from '@/shared/types/todolist/todolist.ts'
 
 const router = useRouter()
 
@@ -31,7 +25,7 @@ const { todolistsQuery, createTodolistMutation } = useTodolistQuery()
 
 const { data: todolists, isLoading, error } = todolistsQuery
 console.log(todolists.value)
-const todolistsList = computed(() => todolists.value ?? [])
+const todolistsList: ComputedRef<TodoList[]> = computed(() => todolists.value ?? [])
 
 const totalTodolists = computed(() => todolistsList.value.length)
 
