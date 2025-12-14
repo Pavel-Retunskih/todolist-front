@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, watchEffect, ref, unref } from 'vue'
-import { useMutation, useQuery, useQueryClient, useQueries } from '@tanstack/vue-query'
+import { computed, type ComputedRef, ref, unref, watchEffect } from 'vue'
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { tasksApi } from '@/entities/tasks/api/tasks-api'
 import { useTodolistQuery } from '@/entities/todolist/model/useTodolistQuery'
 import type { Task } from '@/shared/types/task/task'
@@ -9,18 +9,13 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Input } from '@/shared/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import type { TodoList } from '@/shared/types/todolist/todolist.ts'
 
 const queryClient = useQueryClient()
 const { todolistsQuery } = useTodolistQuery()
 
-const todolistsList = computed(() => todolistsQuery.data.value ?? [])
+const todolistsList: ComputedRef<TodoList[]> = computed(() => todolistsQuery.data.value ?? [])
 const selectedTodolistId = ref<string>('')
 
 const tasksPresenceQueriesOptions = computed(() =>
@@ -51,7 +46,9 @@ const tasksCountByTodolistId = computed<Record<string, number>>(() => {
 })
 
 const isTasksPresenceLoading = computed(() =>
-  tasksPresenceResults.value.some((q) => Boolean(unref(q?.isPending)) || Boolean(unref(q?.isFetching))),
+  tasksPresenceResults.value.some(
+    (q) => Boolean(unref(q?.isPending)) || Boolean(unref(q?.isFetching)),
+  ),
 )
 
 const todolistsWithTasks = computed(() =>
@@ -221,10 +218,16 @@ const tasksErrorMessage = computed(() => {
                   class="w-full"
                   :disabled="todolistsQuery.isLoading.value || isTasksPresenceLoading"
                 >
-                  <SelectValue :placeholder="isTasksPresenceLoading ? 'Loading…' : 'Select todolist'" />
+                  <SelectValue
+                    :placeholder="isTasksPresenceLoading ? 'Loading…' : 'Select todolist'"
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem v-for="list in todolistsWithTasks" :key="list.id" :value="String(list.id)">
+                  <SelectItem
+                    v-for="list in todolistsWithTasks"
+                    :key="list.id"
+                    :value="String(list.id)"
+                  >
                     {{ list.title }}
                   </SelectItem>
                 </SelectContent>
@@ -245,7 +248,9 @@ const tasksErrorMessage = computed(() => {
               <Button
                 class="w-full"
                 variant="outline"
-                :disabled="todolistsQuery.isLoading.value || isTasksPresenceLoading || !selectedTodolistId"
+                :disabled="
+                  todolistsQuery.isLoading.value || isTasksPresenceLoading || !selectedTodolistId
+                "
                 @click="refetch"
               >
                 Apply
@@ -262,7 +267,9 @@ const tasksErrorMessage = computed(() => {
             <CardDescription>In this view</CardDescription>
           </CardHeader>
           <CardContent>
-            <p class="text-3xl font-semibold tracking-tight">{{ tasksQuery.isPending.value ? '—' : stats.total }}</p>
+            <p class="text-3xl font-semibold tracking-tight">
+              {{ tasksQuery.isPending.value ? '—' : stats.total }}
+            </p>
           </CardContent>
         </Card>
 
@@ -272,7 +279,9 @@ const tasksErrorMessage = computed(() => {
             <CardDescription>Completed</CardDescription>
           </CardHeader>
           <CardContent>
-            <p class="text-3xl font-semibold tracking-tight">{{ tasksQuery.isPending.value ? '—' : stats.completed }}</p>
+            <p class="text-3xl font-semibold tracking-tight">
+              {{ tasksQuery.isPending.value ? '—' : stats.completed }}
+            </p>
           </CardContent>
         </Card>
 
@@ -282,7 +291,9 @@ const tasksErrorMessage = computed(() => {
             <CardDescription>Deadline today</CardDescription>
           </CardHeader>
           <CardContent>
-            <p class="text-3xl font-semibold tracking-tight">{{ tasksQuery.isPending.value ? '—' : stats.dueToday }}</p>
+            <p class="text-3xl font-semibold tracking-tight">
+              {{ tasksQuery.isPending.value ? '—' : stats.dueToday }}
+            </p>
           </CardContent>
         </Card>
 
@@ -292,7 +303,9 @@ const tasksErrorMessage = computed(() => {
             <CardDescription>Inside window</CardDescription>
           </CardHeader>
           <CardContent>
-            <p class="text-3xl font-semibold tracking-tight">{{ tasksQuery.isPending.value ? '—' : stats.soon }}</p>
+            <p class="text-3xl font-semibold tracking-tight">
+              {{ tasksQuery.isPending.value ? '—' : stats.soon }}
+            </p>
           </CardContent>
         </Card>
 
@@ -302,12 +315,16 @@ const tasksErrorMessage = computed(() => {
             <CardDescription>Not completed</CardDescription>
           </CardHeader>
           <CardContent>
-            <p class="text-3xl font-semibold tracking-tight">{{ tasksQuery.isPending.value ? '—' : stats.overdue }}</p>
+            <p class="text-3xl font-semibold tracking-tight">
+              {{ tasksQuery.isPending.value ? '—' : stats.overdue }}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      <div v-if="tasksQuery.isPending.value" class="text-sm text-muted-foreground">Loading tasks…</div>
+      <div v-if="tasksQuery.isPending.value" class="text-sm text-muted-foreground">
+        Loading tasks…
+      </div>
       <div v-else-if="tasksQuery.isError.value" class="text-sm text-destructive">
         Failed to load tasks: {{ tasksErrorMessage }}
       </div>
