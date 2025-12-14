@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import './global.css'
+import 'vue-sonner/style.css'
 import { Button } from '@/shared/ui/button'
 import { Icon } from '@iconify/vue'
 import { useColorMode } from '@vueuse/core'
+import { Toaster } from '@/shared/ui/sonner'
 
 const mode = useColorMode({ initialValue: 'dark' })
 </script>
@@ -31,5 +33,6 @@ const mode = useColorMode({ initialValue: 'dark' })
         <component :is="Component" />
       </transition>
     </RouterView>
+    <Toaster />
   </main>
 </template>

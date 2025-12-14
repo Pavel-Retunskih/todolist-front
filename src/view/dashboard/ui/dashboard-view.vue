@@ -14,9 +14,17 @@ import { tasksApi } from '@/entities/tasks/api/tasks-api'
 import type { Task } from '@/shared/types/task/task'
 import TodolistCard from '@/entities/todolist/ui/todolist-card.vue'
 import { Input } from '@/shared/ui/input'
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/shared/ui/field'
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '@/shared/ui/field'
 import { applyFieldError } from '@/shared/helpers/applyFieldError'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import type { TodoList } from '@/shared/types/todolist/todolist.ts'
 
 const router = useRouter()
@@ -222,8 +230,8 @@ function openCreateTodolist() {
         </Card>
       </div>
 
-      <div class="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
-        <div class="space-y-4">
+      <div class="grid gap-4 md:grid-cols-3 items-start">
+        <div class="space-y-4 col-span-2">
           <div v-if="isLoading" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <Card v-for="i in 6" :key="i" class="h-full shadow-md">
               <CardHeader class="pb-3">
@@ -270,7 +278,7 @@ function openCreateTodolist() {
           </div>
         </div>
 
-        <div class="w-full space-y-4 md:max-w-xs md:ml-auto">
+        <div class="w-full space-y-4 md:ml-auto">
           <Card class="shadow-md">
             <CardHeader class="pb-3">
               <CardTitle class="text-base font-semibold">Recent tasks</CardTitle>
@@ -314,12 +322,12 @@ function openCreateTodolist() {
       </div>
     </div>
 
-    <Sheet :open="isCreateTodolistOpen" @update:open="setCreateTodolistOpen($event)">
-      <SheetContent class="w-[420px] sm:w-[520px]">
-        <SheetHeader>
-          <SheetTitle>Create todolist</SheetTitle>
-          <SheetDescription>Fill the fields below to create a new todolist</SheetDescription>
-        </SheetHeader>
+    <Dialog :open="isCreateTodolistOpen" @update:open="setCreateTodolistOpen($event)">
+      <DialogContent class="sm:max-w-[520px]">
+        <DialogHeader>
+          <DialogTitle>Create todolist</DialogTitle>
+          <DialogDescription>Fill the fields below to create a new todolist</DialogDescription>
+        </DialogHeader>
 
         <form id="create-todolist-form" class="mt-6" @submit="onCreateTodolistSubmit">
           <FieldSet>
@@ -380,12 +388,12 @@ function openCreateTodolist() {
 
           <div class="mt-6 flex items-center justify-end gap-2">
             <Button type="button" variant="outline" @click="setCreateTodolistOpen(false)"
-              >Cancel</Button
-            >
+              >Cancel
+            </Button>
             <Button type="submit" :disabled="isSubmitting">Create</Button>
           </div>
         </form>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

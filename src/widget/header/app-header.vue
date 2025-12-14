@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Input } from '@/shared/ui/input'
+import moment from 'moment'
+import { Bell } from 'lucide-vue-next'
 
 const search = ref('')
+const now = ref(moment().format('DD.MM.YYYY'))
 </script>
 
 <template>
   <header
-    class="flex items-center justify-between w-full h-[100px] px-[75px] py-[38px] bg-card border-b border-border shadow-sm"
+    class="flex items-center text-muted-foreground justify-between w-full px-3 py-3 bg-card border-b border-border shadow-sm"
   >
     <span class="font-semibold">Dashboard</span>
     <div class="search">
@@ -15,12 +18,16 @@ const search = ref('')
     </div>
 
     <div>
-      <div>
-        <button>колокольчик</button>
-        <button>календарь</button>
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-full h-10 w-10 hover:bg-muted transition-colors"
+          aria-label="Уведомления"
+        >
+          <Bell class="w-5 h-5" />
+        </button>
+        <span>{{ now }}</span>
       </div>
-
-      <span>Дата</span>
     </div>
   </header>
 </template>

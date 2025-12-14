@@ -4,6 +4,7 @@ import type { CreateTaskPayload, Task, UpdateTaskPayload } from '@/shared/types/
 import { Button } from '@/shared/ui/button'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import TaskEditForm from '@/features/tasks/edit/ui/task-edit-form.vue'
 import TaskCreateForm from '@/features/tasks/create/ui/task-create-form.vue'
 import { useTodolistView } from '@/view/todolist-view/model/useTodolistView'
@@ -289,12 +290,12 @@ async function confirmDeleteTask() {
         </SheetContent>
       </Sheet>
 
-      <Sheet :open="isCreateTaskOpen" @update:open="setCreateTaskOpen($event)">
-        <SheetContent class="w-[420px] sm:w-[520px]">
-          <SheetHeader>
-            <SheetTitle>Create task</SheetTitle>
-            <SheetDescription>Add a new task to this todolist</SheetDescription>
-          </SheetHeader>
+      <Dialog :open="isCreateTaskOpen" @update:open="setCreateTaskOpen($event)">
+        <DialogContent class="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>Create task</DialogTitle>
+            <DialogDescription>Add a new task to this todolist</DialogDescription>
+          </DialogHeader>
 
           <TaskCreateForm
             :todolist-id="todolistId"
@@ -303,8 +304,8 @@ async function confirmDeleteTask() {
             @cancel="setCreateTaskOpen(false)"
             @success="setCreateTaskOpen(false)"
           />
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   </div>
 </template>
