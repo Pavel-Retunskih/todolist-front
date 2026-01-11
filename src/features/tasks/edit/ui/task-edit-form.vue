@@ -11,7 +11,7 @@ import { Button } from '@/shared/ui/button'
 import { Field, FieldDescription as UiFieldDescription, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/shared/ui/field'
 import { applyFieldError } from '@/shared/helpers/applyFieldError'
 
-const props = defineProps<{ task: Task; submitUpdateTask: (payload: UpdateTaskPayload) => Promise<Task> }>()
+const props = defineProps<{ task: Task; submitUpdateTask: (payload: UpdateTaskPayload) => Promise<void> }>()
 const emits = defineEmits<{ (e: 'cancel'): void; (e: 'success'): void }>()
 
 const schema = toTypedSchema(

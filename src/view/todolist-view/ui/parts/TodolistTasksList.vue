@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import type { Task } from '@/shared/types/task/task'
+import { computed, ref, watch } from 'vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { Button } from '@/shared/ui/button'
 import { Separator } from '@/shared/ui/separator'
 import { Skeleton } from '@/shared/ui/skeleton'
-import { Checkbox } from '@/shared/ui/checkbox'
 import { Badge, type BadgeVariants } from '@/shared/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import TaskCard from '@/entities/tasks/ui/task-card.vue'
+import { Plus, Search, Filter } from 'lucide-vue-next'
+import type { Task } from '@/shared/types/task/task'
 import type { AcceptableValue } from 'reka-ui'
 
 const props = defineProps<{
@@ -27,7 +30,62 @@ const emit = defineEmits<{
   (e: 'update:search', value: string): void
   (e: 'update:statusFilter', value: 'all' | 'active' | 'completed'): void
   (e: 'update:sortBy', value: 'updated_desc' | 'created_desc' | 'priority_desc'): void
+  (e: 'create-task'): void
+  (e: 'edit-task', task: Task): void
+  (e: 'delete-task', task: Task): void
+  (e: 'duplicate-task', task: Task): void
+  (e: 'retry'): void
 }>()
+
+const searchQuery = ref(props.search)
+const statusFilterValue = ref(props.statusFilter)
+const sortByValue = ref(props.sortBy)
+
+// Watch for prop changes
+watch(() => props.search, (newValue) => {
+  searchQuery.value = newValue
+})
+
+watch(() => props.statusFilter, (newValue) => {
+  statusFilterValue.value = newValue
+})
+
+watch(() => props.sortBy, (newValue) => {
+  sortByValue.value = newValue
+})
+
+const filteredTasks = computed(() => {
+  let filtered = props.filteredTasks || []
+
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(task => 
+      task.title.toLowerCase().includes(query) ||
+      task.description?.toLowerCase().includes(query) ||
+      task.tags?.some(tag => tag.toLowerCase().includes(query))
+    )
+  }
+
+  if (statusFilterValue.value === 'active') {
+    filtered = filtered.filter(task => !task.completed)
+  } else if (statusFilterValue.value === 'completed') {
+    filtered = filtered.filter(task => task.completed)
+  }
+
+  filtered.sort((a, b) => {
+    switch (sortByValue.value) {
+      case 'created_desc':
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      case 'priority_desc':
+        return (b.priority || 0) - (a.priority || 0)
+      case 'updated_desc':
+      default:
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    }
+  })
+
+  return filtered
+})
 
 function coerceStatusFilter(value: AcceptableValue): 'all' | 'active' | 'completed' {
   if (value === 'active' || value === 'completed') return value
@@ -38,119 +96,147 @@ function coerceSortBy(value: AcceptableValue): 'updated_desc' | 'created_desc' |
   if (value === 'created_desc' || value === 'priority_desc') return value
   return 'updated_desc'
 }
+
+function handleSearchUpdate(value: string | number) {
+  emit('update:search', String(value))
+}
+
+function handleStatusFilterUpdate(value: AcceptableValue) {
+  emit('update:statusFilter', coerceStatusFilter(value))
+}
+
+function handleSortByUpdate(value: AcceptableValue) {
+  emit('update:sortBy', coerceSortBy(value))
+}
+
+function handleToggleCompleted(task: Task, completed: boolean) {
+  props.toggleTaskCompleted(task, completed)
+}
+
+function handleEdit(task: Task) {
+  emit('edit-task', task)
+}
+
+function handleDelete(task: Task) {
+  emit('delete-task', task)
+}
+
+function handleDuplicate(task: Task) {
+  emit('duplicate-task', task)
+}
+
+function handleToggleStarred() {
+  // Star functionality removed
+}
+
+function handleClick(task: Task) {
+  props.openTask(task)
+}
+
+function handleCreateTask() {
+  emit('create-task')
+}
 </script>
 
 <template>
   <Card class="shadow-md">
     <CardHeader>
-      <CardTitle>Tasks</CardTitle>
-      <CardDescription>Search, filter and open a task to see full details</CardDescription>
+      <div class="flex items-center justify-between">
+        <div>
+          <CardTitle>Tasks</CardTitle>
+          <CardDescription>
+            {{ filteredTasks.length }} of {{ filteredTasks.length }} tasks
+          </CardDescription>
+        </div>
+        <Button @click="handleCreateTask">
+          <Plus class="mr-2 h-4 w-4" />
+          Add Task
+        </Button>
+      </div>
     </CardHeader>
     <CardContent class="space-y-4">
-      <div class="grid gap-3 md:grid-cols-3">
-        <Input
-          :model-value="props.search"
-          placeholder="Search by title, description or tag"
-          @update:model-value="(v) => emit('update:search', String(v ?? ''))"
-        />
+      <!-- Filters and Search -->
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <div class="relative flex-1">
+          <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            :model-value="searchQuery"
+            placeholder="Search tasks..."
+            class="pl-10"
+            @update:model-value="handleSearchUpdate"
+          />
+        </div>
 
-        <Select
-          :model-value="props.statusFilter"
-          @update:model-value="(v) => emit('update:statusFilter', coerceStatusFilter(v))"
-        >
-          <SelectTrigger class="w-full">
-            <SelectValue placeholder="All" />
+        <Select :model-value="statusFilterValue" @update:model-value="handleStatusFilterUpdate">
+          <SelectTrigger class="w-full sm:w-40">
+            <Filter class="mr-2 h-4 w-4" />
+            <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="all">All Tasks</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
           </SelectContent>
         </Select>
 
-        <Select
-          :model-value="props.sortBy"
-          @update:model-value="(v) => emit('update:sortBy', coerceSortBy(v))"
-        >
-          <SelectTrigger class="w-full">
-            <SelectValue placeholder="Sort" />
+        <Select :model-value="sortByValue" @update:model-value="handleSortByUpdate">
+          <SelectTrigger class="w-full sm:w-40">
+            <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="updated_desc">Sort: updated</SelectItem>
-            <SelectItem value="created_desc">Sort: created</SelectItem>
-            <SelectItem value="priority_desc">Sort: priority</SelectItem>
+            <SelectItem value="updated_desc">Last Updated</SelectItem>
+            <SelectItem value="created_desc">Date Created</SelectItem>
+            <SelectItem value="priority_desc">Priority</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <Separator />
 
-      <div v-if="props.isTasksLoading" class="space-y-2">
-        <Skeleton class="h-10 w-full" />
-        <Skeleton class="h-10 w-full" />
-        <Skeleton class="h-10 w-full" />
+      <!-- Loading State -->
+      <div v-if="isTasksLoading" class="space-y-3">
+        <Skeleton v-for="i in 5" :key="i" class="h-24 w-full" />
       </div>
 
-      <div v-else-if="props.hasError" class="text-sm text-muted-foreground">
-        Failed to load tasks
+      <!-- Error State -->
+      <div v-else-if="hasError" class="flex flex-col items-center justify-center py-8 text-center">
+        <p class="text-muted-foreground">Failed to load tasks</p>
+        <Button variant="outline" class="mt-2" @click="$emit('retry')">
+          Retry
+        </Button>
       </div>
 
-      <div v-else class="space-y-2">
-        <div v-if="props.filteredTasks.length === 0" class="text-sm text-muted-foreground">
-          No tasks found
+      <!-- Empty State -->
+      <div v-else-if="filteredTasks.length === 0" class="flex flex-col items-center justify-center py-8 text-center">
+        <div class="text-muted-foreground">
+          <p v-if="searchQuery || statusFilter !== 'all'">
+            No tasks match your filters
+          </p>
+          <p v-else>
+            No tasks yet. Create your first task to get started.
+          </p>
         </div>
+        <Button v-if="!searchQuery && statusFilter === 'all'" class="mt-4" @click="handleCreateTask">
+          <Plus class="mr-2 h-4 w-4" />
+          Create Task
+        </Button>
+      </div>
 
-        <div
-          v-for="task in props.filteredTasks"
+      <!-- Tasks List -->
+      <div v-else class="space-y-3">
+        <TaskCard
+          v-for="task in filteredTasks"
           :key="task.id"
-          class="flex w-full items-start justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-left transition hover:bg-accent/50"
-          role="button"
-          tabindex="0"
-          @click="props.openTask(task)"
-          @keydown.enter.prevent="props.openTask(task)"
-          @keydown.space.prevent="props.openTask(task)"
-        >
-          <div class="flex min-w-0 items-start gap-3">
-            <Checkbox
-              :model-value="Boolean(task.completed)"
-              @click.stop
-              @keydown.stop
-              @update:model-value="(v) => props.toggleTaskCompleted(task, Boolean(v))"
-            />
-
-            <img
-              v-if="task.imageUrl"
-              :src="task.imageUrl"
-              alt="Task image"
-              loading="lazy"
-              class="mt-0.5 h-10 w-10 rounded-md border border-border object-cover"
-            />
-
-            <div class="min-w-0 space-y-1">
-              <div class="flex items-center gap-2">
-                <Badge :variant="props.statusVariant(Boolean(task.completed))">
-                  {{ task.completed ? 'Done' : 'Active' }}
-                </Badge>
-                <p class="truncate font-medium">{{ task.title }}</p>
-              </div>
-
-              <p v-if="task.description" class="line-clamp-2 text-xs text-muted-foreground">
-                {{ task.description }}
-              </p>
-
-              <div v-if="task.tags?.length" class="flex flex-wrap gap-1">
-                <Badge v-for="tag in task.tags" :key="tag" variant="outline">{{ tag }}</Badge>
-              </div>
-            </div>
-          </div>
-
-          <div class="shrink-0 text-right">
-            <Badge :variant="props.priorityVariant(Number(task.priority) || 0)"
-              >P{{ task.priority }}</Badge
-            >
-            <p class="mt-1 text-xs text-muted-foreground">{{ props.formatDate(task.updatedAt) }}</p>
-          </div>
-        </div>
+          :task="task"
+          :status-variant="statusVariant"
+          :priority-variant="priorityVariant"
+          :format-date="formatDate"
+          @toggle-completed="handleToggleCompleted"
+          @edit="handleEdit"
+          @delete="handleDelete"
+          @duplicate="handleDuplicate"
+          @click="handleClick"
+        />
       </div>
     </CardContent>
   </Card>
