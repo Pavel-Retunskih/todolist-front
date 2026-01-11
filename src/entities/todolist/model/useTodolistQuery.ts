@@ -15,7 +15,7 @@ export function useTodolistQuery() {
       queryClient.invalidateQueries({ queryKey: ['todolists'] })
     },
   })
-  const deleteTodolistNutation = useMutation({
+  const deleteTodolistMutation = useMutation({
     mutationFn: todolistsApi.deleteTodolist,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todolists'] })
@@ -32,7 +32,7 @@ export function useTodolistQuery() {
   return {
     todolistsQuery,
     createTodolistMutation,
-    deleteTodolistNutation,
+    deleteTodolistMutation,
     updateTodolistMutation,
   }
 }

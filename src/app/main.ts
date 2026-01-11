@@ -1,9 +1,8 @@
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
 import App from '@/app/App.vue'
 import { router } from '@/app/router/router.ts'
 import { configure } from 'vee-validate'
-import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { setupProviders } from '@/app/providers'
 
 configure({
   validateOnBlur: false,
@@ -11,22 +10,10 @@ configure({
   validateOnInput: false,
   validateOnModelUpdate: false,
 })
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchInterval: false,
-      staleTime: 1000 * 60 * 60,
-    },
-  },
-})
 
 const app = createApp(App)
 
-app.use(createPinia())
+// Use FSD providers
+setupProviders(app)
 app.use(router)
-app.use(VueQueryPlugin, {
-  queryClient,
-})
 app.mount('#app')
