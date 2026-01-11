@@ -1,16 +1,12 @@
 import { computed } from 'vue'
 import { useDashboardApi } from '../api'
 import { todolistsApi } from '@/entities/todolist/api'
-import { tasksApi } from '@/features/tasks/api'
-import type { TodoList } from '@/shared/types/todolist/todolist'
-import type { Task } from '@/shared/types/task/task'
 
 export const useDashBoard = () => {
-  const { todolistsQuery, tasksQueries, getDashboardStats, isLoading, error } = useDashboardApi()
+  const { todolistsQuery, isLoading, error } = useDashboardApi()
   
   // Computed values
   const todolists = computed(() => todolistsQuery.data.value || [])
-  const dashboardStats = computed(() => getDashboardStats())
   
   // Mutations
   const createTodolistMutation = todolistsApi.createTodolist
@@ -52,7 +48,6 @@ export const useDashBoard = () => {
   return {
     // Data
     todolists,
-    dashboardStats,
     
     // Loading states
     isLoading,
