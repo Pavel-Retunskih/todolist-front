@@ -19,6 +19,7 @@ export function useTasksQuery(todolistId: MaybeRefOrGetter<string>) {
     queryFn: () => tasksApi.getTasksByTodolistId(resolvedTodolistId.value),
     enabled: computed(() => Boolean(resolvedTodolistId.value)),
   })
+
   const createTaskMutation = useMutation({
     mutationFn: (payload: CreateTaskPayload) => tasksApi.createTask(payload),
     onSuccess: async () => {
@@ -37,7 +38,12 @@ export function useTasksQuery(todolistId: MaybeRefOrGetter<string>) {
     previousTasks?: Task[]
   }
 
-  const updateTaskMutation = useMutation<Task, unknown, UpdateTaskPayload, UpdateTaskMutationContext>({
+  const updateTaskMutation = useMutation<
+    Task,
+    unknown,
+    UpdateTaskPayload,
+    UpdateTaskMutationContext
+  >({
     mutationFn: (payload: UpdateTaskPayload) => tasksApi.updateTask(payload),
     onMutate: async (payload): Promise<UpdateTaskMutationContext> => {
       await queryClient.cancelQueries({ queryKey: tasksQueryKey.value })
@@ -57,6 +63,7 @@ export function useTasksQuery(todolistId: MaybeRefOrGetter<string>) {
           if (payload.completed !== undefined) next.completed = payload.completed
           if (payload.order !== undefined) next.order = payload.order
           if (payload.priority !== undefined) next.priority = payload.priority
+          if (payload.dueDate !== undefined) next.dueDate = payload.dueDate
 
           return next
         })

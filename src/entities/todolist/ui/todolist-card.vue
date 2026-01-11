@@ -22,7 +22,7 @@ const completionRate = computed(() => {
 </script>
 
 <template>
-  <Card class="h-full shadow-md hover:shadow-lg transition-shadow">
+  <Card class="h-full shadow-md hover:shadow-lg transition-shadow hover:cursor-pointer hover:bg-accent">
     <CardHeader class="pb-3">
       <CardTitle class="truncate text-base font-semibold">
         {{ props.todolist.title }}

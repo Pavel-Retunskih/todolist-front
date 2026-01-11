@@ -28,7 +28,9 @@ const isActive = (path: string) => route.path === path
 </script>
 
 <template>
-  <aside class="flex w-full max-w-xs flex-col border-r border-border bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+  <aside
+    class="md:flex hidden w-full max-w-xs flex-col border-r border-border bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+  >
     <div class="px-6 py-6">
       <div class="flex items-center gap-3">
         <Avatar class="h-11 w-11 bg-muted">
@@ -43,11 +45,7 @@ const isActive = (path: string) => route.path === path
     </div>
 
     <div class="flex-1 space-y-6 px-4">
-      <div
-        v-for="section in navItems"
-        :key="section.label"
-        class="space-y-2"
-      >
+      <div v-for="section in navItems" :key="section.label" class="space-y-2">
         <p class="px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {{ section.label }}
         </p>
@@ -67,7 +65,11 @@ const isActive = (path: string) => route.path === path
             <component
               :is="item.icon"
               class="h-4 w-4"
-              :class="isActive(item.to) ? 'text-primary' : 'text-muted-foreground group-hover:text-accent-foreground'"
+              :class="
+                isActive(item.to)
+                  ? 'text-primary'
+                  : 'text-muted-foreground group-hover:text-accent-foreground'
+              "
             />
             <span class="truncate">{{ item.label }}</span>
           </button>
