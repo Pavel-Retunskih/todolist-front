@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useAttrs, type HTMLAttributes } from 'vue'
 import { Eye, EyeOff } from 'lucide-vue-next'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/lib'
 
 defineOptions({
   name: 'UiInput',

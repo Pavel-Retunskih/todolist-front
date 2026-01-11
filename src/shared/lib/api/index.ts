@@ -1,5 +1,7 @@
 // Shared API utilities
 
+export { apiClient } from './apiClient'
+
 export const apiUtils = {
   createHeaders: (token?: string): Record<string, string> => {
     const headers: Record<string, string> = {

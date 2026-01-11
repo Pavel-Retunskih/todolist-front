@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/lib'
 import { Button } from '@/shared/ui/button'
 import {
   Command,

@@ -43,7 +43,7 @@ export const authUtils = {
     try {
       const parts = token.split('.')
       if (parts.length !== 3) return true
-      const payload = JSON.parse(atob(parts[1]))
+      const payload = JSON.parse(atob(parts[1] ?? ''))
       return Date.now() >= payload.exp * 1000
     } catch {
       return true

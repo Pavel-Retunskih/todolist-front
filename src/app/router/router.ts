@@ -1,15 +1,14 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import DashboardView from '@/view/dashboard/ui/dashboard-view.vue'
-import MainLayout from '@/view/main-layout/ui/main-layout.vue'
-
-import SigninView from '@/view/signin/ui/signin-view.vue'
-import SignupView from '@/view/signup/ui/signup-view.vue'
+import { DashboardPage } from '@/pages/dashboard'
+import { MainLayout } from '@/widgets/layout'
+import { SigninPage } from '@/pages/signin'
+import { SignupPage } from '@/pages/signup'
 import { useAuthStore } from '@/features/auth/model/auth.store'
-import VitalView from '@/view/vital-view/ui/vital-view.vue'
-import TasksView from '@/view/tasks-view/tasks-view.vue'
-import TasksCategoryView from '@/view/tasks-category-view/tasks-category-view.vue'
-import SettingsView from '@/view/settings-view/settings-view.vue'
-import TodolistView from '@/view/todolist-view/ui/todolist-view.vue'
+import { VitalPage } from '@/pages/vital'
+import { TasksPage } from '@/pages/tasks'
+import { TasksCategoryPage } from '@/pages/tasks-category'
+import { SettingsPage } from '@/pages/settings'
+import { TodolistPage } from '@/pages/todolist'
 
 const ROUTES = {
   DASHBOARD: '/dashboard',
@@ -24,8 +23,8 @@ const ROUTES = {
 
 const routes: readonly RouteRecordRaw[] = [
   { path: '/', redirect: '/signin' },
-  { path: ROUTES.SIGNUP, component: SignupView, meta: { guestOnly: true } },
-  { path: ROUTES.SIGNIN, component: SigninView, meta: { guestOnly: true } },
+  { path: ROUTES.SIGNUP, component: SignupPage, meta: { guestOnly: true } },
+  { path: ROUTES.SIGNIN, component: SigninPage, meta: { guestOnly: true } },
   {
     path: '/',
     component: MainLayout,
@@ -33,37 +32,37 @@ const routes: readonly RouteRecordRaw[] = [
       {
         path: ROUTES.DASHBOARD,
         name: 'Dashboard',
-        component: DashboardView,
+        component: DashboardPage,
         meta: { requiresAuth: true },
       },
       {
         path: ROUTES.VITAL,
         name: 'Vital',
-        component: VitalView,
+        component: VitalPage,
         meta: { requiresAuth: true },
       },
       {
         path: ROUTES.TASKS,
         name: 'Tasks',
-        component: TasksView,
+        component: TasksPage,
         meta: { requiresAuth: true },
       },
       {
         path: ROUTES.TASKS_CATEGORY,
         name: 'Tasks Category',
-        component: TasksCategoryView,
+        component: TasksCategoryPage,
         meta: { requiresAuth: true },
       },
       {
         path: ROUTES.SETTINGS,
         name: 'Settings',
-        component: SettingsView,
+        component: SettingsPage,
         meta: { requiresAuth: true },
       },
       {
         path: ROUTES.TODOLIST,
         name: 'Todolist',
-        component: TodolistView,
+        component: TodolistPage,
         meta: { requiresAuth: true },
       },
     ],

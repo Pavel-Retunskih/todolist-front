@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib/apiClient.ts'
+import { apiClient } from '@/shared/lib/api'
 import type {
   CreateTaskPayload,
   DeleteTaskPayload,

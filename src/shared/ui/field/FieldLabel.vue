@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue"
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib"
 import { Label } from '@/shared/ui/label'
 
 const props = defineProps<{
