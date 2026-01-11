@@ -6,7 +6,7 @@ import DashboardStats from './parts/dashboard-stats.vue'
 import RecentTasks from './parts/recent-tasks.vue'
 import TodolistsGrid from './parts/todolists-grid.vue'
 import CreateTodolistDialog from './parts/create-todolist-dialog.vue'
-import { useDashboardData } from '../model/dashboard-composables'
+import { useDashboardData } from '../model/useDashBoard'
 
 
 type CreateTodolistValues = {
